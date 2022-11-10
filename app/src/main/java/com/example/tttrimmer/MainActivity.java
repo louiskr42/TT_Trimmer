@@ -48,6 +48,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.LogMessage;
 import com.gowtham.library.utils.TrimType;
 import com.gowtham.library.utils.TrimVideo;
@@ -171,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 Long nDurationLong = oDurationString - 4;
 
                 TrimVideo.activity(String.valueOf(uris.get(0)))
-                //      .setCompressOption(new CompressOption()) //empty constructor for default compress option
+                        .setCompressOption(new CompressOption(30, "5M", 720, 1080)) //empty constructor for default compress option
                         .setHideSeekBar(false)
                         .setAccurateCut(true)
                         .setTrimType(TrimType.FIXED_DURATION)
