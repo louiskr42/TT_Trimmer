@@ -19,6 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -238,10 +239,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveFile(Uri sourceUri)
     {
+        File file = new File(Environment.getExternalStorageDirectory().getPath(), "DCIM/TikTokTrimmer");
+
+        Log.d(TAG, "getExternalFilesDirs(): " + getExternalFilesDirs(Environment.DIRECTORY_MOVIES));
+
+        if (!file.exists()){
+            Log.d(TAG, "Folder created: " + String.valueOf(file.mkdir()));
+        }
+
+        if (new File(Environment.getExternalStorageDirectory().getPath()).exists()) {
+            Log.d(TAG, "Parent folder exists!");
+        }
+
+
         String sourcePath= sourceUri.getPath();
         String[] folders= sourcePath.split("/");
         String destinationFilename = folders[folders.length - 1].replace("..", ".");
-        String destinationPath = android.os.Environment.getExternalStorageDirectory().getPath()+ File.separatorChar + destinationFilename;
+        String destinationPath = Environment.getExternalStorageDirectory().getPath()+ File.separatorChar + "DCIM" + File.separatorChar + "TikTokTrimmer" + File.separatorChar + destinationFilename;
 
         Log.d(TAG, "New video path: " + destinationPath);
 
