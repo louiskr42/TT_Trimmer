@@ -1,9 +1,12 @@
 package com.example.tttrimmer;
 
+import static android.media.MediaRecorder.VideoSource.CAMERA;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
@@ -16,6 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 
@@ -35,6 +39,12 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.gowtham.library.utils.LogMessage;
@@ -73,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
                     Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
                     Log.d(TAG, "Trimmed path:: " + uri);
                     videoView.setVideoURI(uri);
+                    saveFile(uri);
+
 
                 } else
                     LogMessage.v("videoTrimResultLauncher data is null");
@@ -148,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView.setLayoutManager(new LinearLayoutManager(this));
                 //Set adapter
                 recyclerView.setAdapter(new MainAdapter(uris));
-                videoView.setVideoURI(uris.get(0));
+                //videoView.setVideoURI(uris.get(0));
 
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(this, uris.get(0));
@@ -221,6 +233,38 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void saveFile(Uri sourceUri)
+    {
+        String sourcePath= sourceUri.getPath();
+        String[] folders= sourcePath.split("/");
+        String destinationFilename = folders[folders.length - 1].replace("..", ".");
+        String destinationPath = android.os.Environment.getExternalStorageDirectory().getPath()+ File.separatorChar + destinationFilename;
+
+        Log.d(TAG, "New video path: " + destinationPath);
+
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+
+        try {
+            bis = new BufferedInputStream(new FileInputStream(sourcePath));
+            bos = new BufferedOutputStream(new FileOutputStream(destinationPath, false));
+            byte[] buf = new byte[1024];
+            bis.read(buf);
+            do {
+                bos.write(buf);
+            } while(bis.read(buf) != -1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bis != null) bis.close();
+                if (bos != null) bos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
